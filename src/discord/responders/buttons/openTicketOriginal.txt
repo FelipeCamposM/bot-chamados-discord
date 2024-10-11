@@ -1,0 +1,74 @@
+import { Responder, ResponderType } from "#base";
+import { createEmbed, createRow } from "@magicyan/discord";
+import { ComponentType, REST, Routes, StringSelectMenuBuilder } from "discord.js";
+import { ThreadsAPI } from "../../../api/thread.js";
+
+const RESTInstance = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN);
+
+function registerTicket(assunto: string, usuario: string) {
+    // Implementar a lógica de registro de ticket, ou remover se não for necessário.
+    console.log(`Ticket registrado. Assunto: ${assunto}, Usuário: ${usuario}`);
+}
+
+new Responder({
+    customId: "openTicket",
+    type: ResponderType.Button, cache: "cached",
+    async run(interaction) {
+        await interaction.reply({ ephemeral: true, content: "Ticket aberto com sucesso!" });
+    }
+});
+
+new Responder({
+    customId: "ticketModal",
+    type: ResponderType.Modal, cache: "cached",
+    async run(interaction) {
+        const { fields } = interaction;
+        const assunto = fields.getTextInputValue("assunto");
+        const usuario = fields.getTextInputValue("usuario");
+ 
+        registerTicket(assunto, usuario);
+
+
+        
+        const row = createRow(
+            new StringSelectMenuBuilder({
+                customId: "newTicket",
+                placeholder: "Escolha uma das opções do chamado",
+                options: [
+                    { label: "Problema com Sistema", value: "Problema-Sistema" },
+                    { label: "Novo equipamento", value: "Novo-Equipamento" },
+                    { label: "Instalação de Software", value: "Instalacao-Software" },
+                    { label: "Outros", value: "Outros" },
+                ]
+            })
+        );
+        
+        await interaction.reply({ ephemeral: true, content: `Registrado como ${usuario}` });
+
+        const channel = interaction.channel;
+
+        if (!channel) {
+            await interaction.followUp({ content: "Erro: O canal não foi encontrado.", ephemeral: true });
+            return;
+        }
+
+        // Escutar a interação da seleção
+        interaction.channel.awaitMessageComponent({ componentType: ComponentType.StringSelect, time: 15000 })
+            .then(async selectInteraction => {
+                const selectedOption = selectInteraction.values[0];
+                const threadTitle = `Chamado: ${selectedOption} 🚨 Assunto: ${assunto} Usuário: ${interaction.user.tag}`; // Título da thread com base na opção
+
+                // Criar a thread após a seleção
+                const thread = await RESTInstance.post(Routes.threads(channel.id), {
+                    body: {
+                        name: threadTitle,
+                        type: 11, // THREAD_PRIVATE (exemplo)
+                    }
+                });
+
+                await selectInteraction.reply(`Thread criada: ${threadTitle}`);
+            })
+            .catch(console.error);
+    },
+    
+});
