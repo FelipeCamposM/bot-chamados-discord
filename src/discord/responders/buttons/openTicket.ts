@@ -114,18 +114,23 @@ new Responder({
                 .addComponents(
                     new StringSelectMenuBuilder()
                         .setCustomId("newTicket")
-                        .setPlaceholder("☰ Escolha uma das opções do chamado")
+                        .setPlaceholder("☰ Escolha uma das opções 📝")
                         .addOptions([
-                            { label: "Problema com Sistema", value: "Problema-Sistema" },
-                            { label: "Problema com Equipamentos", value: "Problema-Equipamentos" },
-                            { label: "Novo equipamento", value: "Novo-Equipamento" },
-                            { label: "Instalação de Software", value: "Instalacao-Software" },
-                            { label: "Problema com Impressoras", value: "Problema-Impressoras" },
+                            { label: "📌 Winthor 🟠", value: "Winthor" },
+                            { label: "📌 Ellévti 🔵", value: "Ellevti" },
+                            { label: "📌 Whatsapp 🟢", value: "Whatsapp" },
+                            { label: "📌 Cadastro de Usuários 👤", value: "Cadastro-Usuario" },
+                            { label: "📌 Problema com Equipamentos 🛠️", value: "Problema-Equipamentos" },
+                            { label: "📌 Problema com Impressoras 🖨️", value: "Problema-Impressoras" },
+                            { label: "📌 Problema com o Site 🌐", value: "Problema-Site" },
+                            { label: "📌 Instalação de Software 💾", value: "Instalacao-Software" },
+                            { label: "📌 Requisição de equipamento 🛠️", value: "Requisicao-Equipamento" },
+                            { label: "📌 Obter Ajuda T.I. 💻", value: "Ajuda-TI" },
                         ])
                 );
 
             const message = await interaction.reply({
-                content: `Seu chamado está quase pronto!\nAssunto: ${assunto}.\nEscolha uma das opções abaixo:`,
+                content: `🎫 **Seu chamado está quase pronto!**\nAssunto: ${assunto}.\n👉 Escolha uma das opções abaixo para classificar e finalizar: ⬇️`,
                 components: [row],
                 ephemeral: false,
                 fetchReply: true 
@@ -133,12 +138,12 @@ new Responder({
 
             const collector = message.createMessageComponentCollector({
                 componentType: ComponentType.StringSelect,
-                time: 15000 // Tempo limite de 15 segundos
+                time: 30000 // Tempo limite de 15 segundos
             });
 
             collector.on('collect', async (selectInteraction) => {
                 const selectedOption = selectInteraction.values[0];
-                const threadTitle = `🚨 Chamado: Número Ticket: ${numeroTicket} | Tipo: ${selectedOption} | Usuário: ${interaction.user.globalName}`;
+                const threadTitle = `🚨🎫 Usuário: ${interaction.user.globalName} | Tipo: ${selectedOption} | Número Ticket: ${numeroTicket}`;
 
                 const channelThreads = "1287785499322482711";
 
@@ -168,6 +173,7 @@ new Responder({
                         ticket: numeroTicket,
                     }
                 });
+                console.log(chamado)
 
                 const channel = await interaction.client.channels.fetch("1288150006112583854") as TextChannel;
                 if (channel) {
@@ -184,6 +190,7 @@ new Responder({
             });
 
             collector.on('end', async (collected, reason) => {
+                console.log(`COLETOR FINALIZADO: ${collected}`);
                 // Se o coletor terminou por tempo (sem interação), deletar a mensagem
                 if (reason === 'time') {
                     try {
