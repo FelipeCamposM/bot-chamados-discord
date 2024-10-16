@@ -1,0 +1,37 @@
+version: '3'
+services:
+  # Definição do serviço de banco de dados
+  db:
+    image: postgres:latest
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: bancoDisc
+    volumes:
+      - pgdata:/var/lib/postgresql/data  # Volumes para persistir os dados
+    ports:
+      - "5432:5432"  # Mapeamento da porta para que o banco de dados seja acessível no host
+    networks:
+      - bot-network  # Rede que será compartilhada com o bot
+
+  # Definição do serviço de aplicação
+  discord-bot:
+    build: .
+    container_name: discord-bot
+    depends_on:
+      - db  # O bot só tentará iniciar depois que o banco de dados estiver pronto
+    environment:
+      DATABASE_URL: "postgresql://root:root@db:5432/bancoDisc?schema=public"  # Variável de ambiente para acessar o banco
+    ports:
+      - "3000:3000"  # Exemplo de mapeamento de porta para a aplicação
+    networks:
+      - bot-network  # A rede que será compartilhada com o banco de dados
+
+networks:
+  bot-network:
+    driver: bridge  # Rede bridge para conectar os containers
+
+volumes:
+  pgdata:
+    driver: local  # Volume local para persistir os dados do banco de dados
