@@ -1,5 +1,5 @@
 import { Command, URLStore } from "#base";
-import { createEmbed, createRow } from "@magicyan/discord";
+import { createEmbed } from "@magicyan/discord";
 import { ApplicationCommandType, ButtonBuilder, ButtonStyle, TextChannel, ActionRowBuilder, ComponentType } from "discord.js";
 
 new Command({

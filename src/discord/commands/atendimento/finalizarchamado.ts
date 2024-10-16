@@ -1,7 +1,6 @@
 import { Responder, ResponderType } from "#base";
-import { createEmbed, createRow } from "@magicyan/discord";
+import { createRow } from "@magicyan/discord";
 import { ComponentType, REST, Routes, StringSelectMenuBuilder } from "discord.js";
-import { ThreadsAPI } from "../../../api/thread.js";
 
 
 const RESTInstance = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN);
@@ -36,6 +35,8 @@ new Responder({
             })
         );
         
+        console.log(row);
+
         await interaction.reply({ ephemeral: true, content: `Registrado como ${usuario}` });
 
         const channel = interaction.channel;
@@ -60,6 +61,8 @@ new Responder({
                         type: 11, // THREAD_PRIVATE (exemplo)
                     }
                 });
+
+                console.log(thread);
 
                 await selectInteraction.reply(`Thread criada: ${threadTitle}`);
             })

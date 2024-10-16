@@ -1,7 +1,7 @@
 import { Command } from "#base";
 import { ApplicationCommandType, ThreadChannel } from "discord.js";
 import { PrismaClient } from "@prisma/client";
-import { toZonedTime, format } from 'date-fns-tz';
+import { toZonedTime } from 'date-fns-tz';
 
 const prisma = new PrismaClient();
 

@@ -9,7 +9,10 @@ import {
 export class ThreadsAPI {
   static addMember(threadId: any, id: string) {
     throw new Error("Method not implemented.");
+    console.log(threadId, id);
   }
+
+  
   public constructor(private readonly rest: REST) {}
 
   /**

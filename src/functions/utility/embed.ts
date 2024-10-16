@@ -1,5 +1,4 @@
 import { Command } from "#base";
-import { createEmbed } from "@magicyan/discord";
 import { ApplicationCommandType } from "discord.js";
 
 new Command({
