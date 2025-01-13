@@ -20,11 +20,13 @@
     "date-fns-tz": "^3.2.0",
     "discord.js": "^14.15.3",
     "fast-glob": "^3.3.2",
+    "nodemailer": "^6.9.15",
     "radix3": "^1.1.2",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^20.14.10",
+    "@types/nodemailer": "^6.4.16",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "eslint": "^8.57.0",

@@ -4,7 +4,8 @@ import { ThreadsAPI } from "../../../api/thread.js";
 import { APIChannel, ButtonStyle } from "discord-api-types/v10";
 import { createEmbed } from "@magicyan/discord";
 import { PrismaClient } from "@prisma/client";
-
+import nodemailer from "nodemailer";
+import { formatDate } from "../../../functions/utility/formatDate.js";
 
 const RESTInstance = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN);
 const threadsAPI = new ThreadsAPI(RESTInstance);
@@ -16,8 +17,8 @@ function gerarNumeroTicket(): string {
     return ticketNumber;
 }
 
-function registerTicket(assunto: string, descricao: string, numeroTicket: string) {
-    console.log(`Ticket registrado. Número: ${numeroTicket}, Assunto: ${assunto}, Descrição: ${descricao}`);
+function registerTicket(assunto: string, descricao: string, email: string, numeroTicket: string) {
+    console.log(`Ticket registrado. Número: ${numeroTicket}, Assunto: ${assunto}, Email: ${email}, Descrição: ${descricao}`);
 }
 
 new Responder({
@@ -60,7 +61,6 @@ new Responder({
     },
 });
 
-
 new Responder({
     customId: "answerButton",
     type: ResponderType.Button,
@@ -81,10 +81,17 @@ new Responder({
                 .setLabel('Dê uma descrição do chamado')
                 .setStyle(TextInputStyle.Paragraph)
                 .setRequired(true);
+            
+            const emailInput = new TextInputBuilder()
+                .setCustomId('email')
+                .setLabel('Envie seu email para receber avisos')
+                .setStyle(TextInputStyle.Short)
+                .setRequired(true);
 
             modal.addComponents(
                 new ActionRowBuilder<TextInputBuilder>().addComponents(assuntoInput),
-                new ActionRowBuilder<TextInputBuilder>().addComponents(descricaoInput)
+                new ActionRowBuilder<TextInputBuilder>().addComponents(descricaoInput),
+                new ActionRowBuilder<TextInputBuilder>().addComponents(emailInput)
             );
 
             await interaction.showModal(modal);
@@ -97,7 +104,6 @@ new Responder({
 
 const prisma = new PrismaClient();
 
-
 new Responder({
     customId: "ticketModal",
     type: ResponderType.Modal,
@@ -105,10 +111,11 @@ new Responder({
         try {
             const assunto = interaction.fields.getTextInputValue("assunto");
             const descricao = interaction.fields.getTextInputValue("descricao");
+            const email = interaction.fields.getTextInputValue("email");
 
             const numeroTicket = gerarNumeroTicket();
 
-            registerTicket(assunto, descricao, numeroTicket);
+            registerTicket(assunto, descricao, email, numeroTicket);
 
             const row = new ActionRowBuilder<StringSelectMenuBuilder>()
                 .addComponents(
@@ -138,7 +145,7 @@ new Responder({
 
             const collector = message.createMessageComponentCollector({
                 componentType: ComponentType.StringSelect,
-                time: 30000 // Tempo limite de 15 segundos
+                time: 30000 // Tempo limite de 30 segundos
             });
 
             collector.on('collect', async (selectInteraction) => {
@@ -150,7 +157,7 @@ new Responder({
                 const thread = await RESTInstance.post(Routes.threads(channelThreads), {
                     body: {
                         name: threadTitle,
-                        type: 11, // THREAD_PRIVATE (exemplo de thread privada)
+                        type: 12, // THREAD_PRIVATE (exemplo de thread privada)
                     }
                 }) as APIChannel;
 
@@ -171,15 +178,17 @@ new Responder({
                         description: descricao,
                         typeproblem: selectedOption,
                         ticket: numeroTicket,
+                        email: email,
                     }
                 });
-                console.log(chamado)
+                console.log(chamado);
 
-                const channel = await interaction.client.channels.fetch("1288150006112583854") as TextChannel;
+                
+                const channel = await interaction.client.channels.fetch("1287785499322482711") as TextChannel;
                 if (channel) {
-                    await channel.send(`**Thread criada:** ${threadTitle}\n **Descricão:** ${descricao}\n **Data de criação:** ${new Date()}`);
+                    await channel.send(`**Thread criada:** ${threadTitle}\n **Descricão:** ${descricao}\n **Data de criação:** ${formatDate(new Date())}`);
                 }
-
+                
                 try {
                     if (message) {
                         await message.delete();
@@ -187,11 +196,14 @@ new Responder({
                 } catch (error) {
                     console.error("Erro ao deletar a mensagem:", error);
                 }
+                
+                // Envia o e-mail quando todas as seleções são feitas
+                await sendEmail();
+                console.log("Envio do e-mail concluído!");
             });
 
             collector.on('end', async (collected, reason) => {
                 console.log(`COLETOR FINALIZADO: ${collected}`);
-                // Se o coletor terminou por tempo (sem interação), deletar a mensagem
                 if (reason === 'time') {
                     try {
                         if (message) {
@@ -202,6 +214,80 @@ new Responder({
                     }
                 }
             });
+
+            console.log("Iniciando envio do email...");
+
+            async function sendEmail() {
+                console.log("Envio do email iniciado!");
+
+                const transporter = nodemailer.createTransport({
+                    service: "outlook",
+                    auth: {
+                        user: process.env.EMAIL,
+                        pass: process.env.PASSWORD,
+                    },
+                });
+
+                async function getInfosEmail() {
+                    console.log("Pegando informações do e-mail...");
+
+                    try {
+                        const infosEmail = await prisma.chamado.findUnique({
+                            where: { ticket: numeroTicket },
+                            select: {
+                                typeproblem: true,
+                                subtitle: true,
+                                description: true,
+                                requester: true,
+                                email: true,
+                                createdAt: true,
+                            },
+                        });
+
+                        if (infosEmail) {
+                            return infosEmail;
+                        } else {
+                            console.log('Dados não encontrados');
+                            return null;
+                        }
+                    } catch (error) {
+                        console.error("Erro ao tentar encontrar o e-mail:", error);
+                        return null;
+                    }
+                }
+
+                const emailData = await getInfosEmail();
+
+                
+                try {
+                        if (emailData) {
+                            const { typeproblem, subtitle, description, requester, email, createdAt } = emailData;
+                        
+                        await transporter.sendMail({
+                            from: process.env.EMAIL,
+                            to: email,
+                            subject: "📝 Seu Chamado foi aberto!",
+                            text: `🎫 Detalhes do Chamado:\n\n👤 Solicitante: ${requester}\n📅 Data Criação do Chamado: ${createdAt}\n📋 Tipo do Problema: ${typeproblem}\n📋 Assunto: ${subtitle}\n📋 Descrição: ${description}\n\n✅ Esse e-mail foi enviado automaticamente.`,
+                            html: `
+                                <div style="font-family: Arial, sans-serif; color: #333;">
+                                    <h2 style="color: #2596be;">🎫 Detalhes do Chamado</h2>
+                                    <p><strong>👤 Solicitante:</strong> ${requester}</p>
+                                    <p><strong>📅 Data Criação do Chamado:</strong> ${formatDate(createdAt as Date)}</p>
+                                    <p><strong>📋 Tipo do Problema:</strong> ${typeproblem}</p>
+                                    <p><strong>📋 Assunto:</strong> ${subtitle}</p>
+                                    <p><strong>📋 Descrição:</strong> ${description}</p>
+                                    <hr>
+                                    <p>✅ <em>Esse e-mail foi enviado automaticamente.</em></p>
+                                </div>
+                            `,
+                        });
+                        console.log("E-mail enviado com sucesso!");
+                    }
+                } catch (error) {
+                    console.error('Erro ao enviar o e-mail:', error);
+                }
+            }
+
         } catch (error) {
             console.error("Erro ao processar a seleção ou criar thread:", error);
             await interaction.followUp({ content: "Ocorreu um erro ao processar o chamado.", ephemeral: true });

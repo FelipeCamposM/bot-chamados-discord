@@ -14,14 +14,18 @@ datasource db {
 }
 
 model chamado {
-  id              Int      @id @default(autoincrement())  // Chave primária com auto-incremento
-  requester       String                                    // Nome do solicitante
-  subtitle        String                                   // Assunto do chamado
-  description     String                                   // Descrição do chamado
-  ticket          String   @unique                         // Número do Ticket
-  typeproblem     String                                   // Tipo de Problema do chamado
-  createdAt       DateTime @default(now())                 // Data de criação com valor padrão para a data atual
-  finishedAt      DateTime?                                // Data de finalização do chamado
-  finishedByUser  String?                                  // Usuário que encerrou o chamado
-  updatedAt       DateTime @updatedAt                      // Atualiza automaticamente na alteração
+  id                Int      @id @default(autoincrement())  // Chave primária com auto-incremento
+  requester         String                                    // Nome do solicitante
+  subtitle          String                                   // Assunto do chamado
+  description       String                                   // Descrição do chamado
+  email             String                                   // Email do usuario que abriu o chamado
+  ticket            String   @unique                         // Número do Ticket
+  typeproblem       String                                   // Tipo de Problema do chamado
+  createdAt         DateTime @default(now())                 // Data de criação com valor padrão para a data atual
+  attributedAt      DateTime?                                // Data de quando o chamado foi atribuido à alguem
+  attributedByUser  String?                                  // Usuario que atribuiu a terava
+  finishedAt        DateTime?                                // Data de finalização do chamado
+  finishedByUser    String?                                  // Usuário que encerrou o chamado
+  reasonFinished    String?                                  // Resposta final de encerramento do chamado que ira para o email
+  updatedAt         DateTime @updatedAt                      // Atualiza automaticamente na alteração  
 }

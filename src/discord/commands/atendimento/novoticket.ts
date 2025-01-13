@@ -17,7 +17,7 @@ new Command({
             title: "**Envie aqui o seu Chamado** 🎫 🚨",
             description: "**Abrindo um chamado:** 🎫\n\nPara abrir seu chamado clique em " + "Abrir novo chamado" + " e selecione a opção desejada.\n\n**Redirecionando:** ↗️\n\nAo clicar na opção selecionada, você será redirecionado para um canal aonde você irá digitar sobre o que se trata o chamado.\n\n**Quando for resolvido:** ✅\n\nAo ser resolvido, será enviado uma mensagem no seu privado avisando que o chamado foi resolvido",
             color: 0x00FF00, // Cor verde
-            url: "https://discord.com/channels/1285697402409582736/1286347876208873553" // URL do canal
+            url: "https://discord.com/channels/1285697402409582736/1298349543368163328" // URL do canal
         });
 
         // Botão para abrir um novo chamado
