@@ -3,7 +3,7 @@ import { createRow } from "@magicyan/discord";
 import { ComponentType, REST, Routes, StringSelectMenuBuilder } from "discord.js";
 
 
-const RESTInstance = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN);
+const RESTInstance = new REST({ version: "10" }).setToken(process.env.BOT_TOKEN);
 
 new Responder({
     customId: "openTicket",
@@ -58,7 +58,7 @@ new Responder({
                 const thread = await RESTInstance.post(Routes.threads(channel.id), {
                     body: {
                         name: threadTitle,
-                        type: 11, // THREAD_PRIVATE (exemplo)
+                        type: 12, // THREAD_PRIVATE (exemplo)
                     }
                 });
 

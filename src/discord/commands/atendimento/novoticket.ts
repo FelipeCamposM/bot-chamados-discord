@@ -2,6 +2,9 @@ import { Command, URLStore } from "#base";
 import { createEmbed } from "@magicyan/discord";
 import { ApplicationCommandType, ButtonBuilder, ButtonStyle, TextChannel, ActionRowBuilder, ComponentType } from "discord.js";
 
+const canalEmbedId = "1344659254409429114";
+const servidorId = "1298349395091132458";
+
 new Command({
     name: "novoticket",
     description: "Envie isso para abrir um novo Chamado 🎫",
@@ -17,7 +20,7 @@ new Command({
             title: "**Envie aqui o seu Chamado** 🎫 🚨",
             description: "**Abrindo um chamado:** 🎫\n\nPara abrir seu chamado clique em " + "Abrir novo chamado" + " e selecione a opção desejada.\n\n**Redirecionando:** ↗️\n\nAo clicar na opção selecionada, você será redirecionado para um canal aonde você irá digitar sobre o que se trata o chamado.\n\n**Quando for resolvido:** ✅\n\nAo ser resolvido, será enviado uma mensagem no seu privado avisando que o chamado foi resolvido",
             color: 0x00FF00, // Cor verde
-            url: "https://discord.com/channels/1285697402409582736/1298349543368163328" // URL do canal
+            url: `https://discord.com/channels/${servidorId}/${canalEmbedId}` // URL do canal
         });
 
         // Botão para abrir um novo chamado
@@ -30,7 +33,7 @@ new Command({
             .addComponents(button);
 
         // Enviar o embed para um canal específico (use o ID real do canal)
-        const channel = await interaction.client.channels.fetch("1286347876208873553") as TextChannel;
+        const channel = await interaction.client.channels.fetch(canalEmbedId) as TextChannel;
         if (channel) {
             const sentMessage = await channel.send({ embeds: [embed], components: [row] });
 
@@ -40,8 +43,8 @@ new Command({
                 time: 60000 // 1 minuto
             });
 
-            collector.on('collect', async i => {
-                if (i.customId === 'newTicket') {
+            collector.on("collect", async i => {
+                if (i.customId === "newTicket") {
                     // Desativar o botão e começar o contador
                     let countdown = 60;
 

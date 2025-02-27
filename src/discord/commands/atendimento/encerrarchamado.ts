@@ -17,12 +17,12 @@ new Command({
 
         try {
             const modal = new ModalBuilder()
-                .setCustomId('encerramentoModal') 
-                .setTitle('Mensagem de encerramento:');
+                .setCustomId("encerramentoModal") 
+                .setTitle("Mensagem de encerramento:");
 
             const msgfinalInput = new TextInputBuilder()
-                .setCustomId('msgfinal') 
-                .setLabel('Assunto do Chamado')
+                .setCustomId("msgfinal") 
+                .setLabel("Assunto do Chamado")
                 .setStyle(TextInputStyle.Paragraph)
                 .setRequired(true);
 
@@ -39,9 +39,9 @@ new Command({
             // Aguarda a resposta ao modal, sem bloquear a execução do restante do código
 interaction.awaitModalSubmit({
     time: 60000, // Tempo limite para o usuário responder (em ms)
-    filter: (i) => i.customId === 'encerramentoModal' && i.user.id === interaction.user.id,
+    filter: (i) => i.customId === "encerramentoModal" && i.user.id === interaction.user.id,
 }).then(async (submittedInteraction) => {
-    const msgfinal = submittedInteraction.fields.getTextInputValue('msgfinal');
+    const msgfinal = submittedInteraction.fields.getTextInputValue("msgfinal");
 
     // Responde ao usuário imediatamente
     // submittedInteraction.reply({ content: "Sua mensagem de encerramento foi recebida. Estamos processando o fechamento do chamado.", ephemeral: true });
@@ -56,7 +56,7 @@ interaction.awaitModalSubmit({
 
         if (chamadoNumber) {
             const now = new Date();
-            const utcDate = toZonedTime(now, 'America/Sao_Paulo');
+            const utcDate = toZonedTime(now, "America/Sao_Paulo");
 
             try {
                 const updatedChamado = await prisma.chamado.update({
@@ -182,7 +182,7 @@ interaction.awaitModalSubmit({
                     console.log("Essas são as informações do e-mail:", info);
                     console.log("E-mail de encerramento enviado com sucesso!");
                     } else {
-                        console.log('Erro ao enviar o e-mail de encerramento');
+                        console.log("Erro ao enviar o e-mail de encerramento");
                     }
                 }
 

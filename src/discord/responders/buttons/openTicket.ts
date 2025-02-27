@@ -7,9 +7,12 @@ import { PrismaClient } from "@prisma/client";
 import nodemailer from "nodemailer";
 import { formatDate } from "../../../functions/utility/formatDate.js";
 
-const RESTInstance = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN);
+const RESTInstance = new REST({ version: "10" }).setToken(process.env.BOT_TOKEN);
 const threadsAPI = new ThreadsAPI(RESTInstance);
 const cargoId = "1288150802283757599";
+const channelThreads = "1287785499322482711";
+
+
 
 function gerarNumeroTicket(): string {
     const timestamp = Date.now(); 
@@ -67,24 +70,24 @@ new Responder({
     async run(interaction) {
         try {
             const modal = new ModalBuilder()
-                .setCustomId('ticketModal') 
-                .setTitle('Abrir Novo Chamado');
+                .setCustomId("ticketModal") 
+                .setTitle("Abrir Novo Chamado");
 
             const assuntoInput = new TextInputBuilder()
-                .setCustomId('assunto') 
-                .setLabel('Assunto do Chamado')
+                .setCustomId("assunto") 
+                .setLabel("Assunto do Chamado")
                 .setStyle(TextInputStyle.Short)
                 .setRequired(true);
 
             const descricaoInput = new TextInputBuilder()
-                .setCustomId('descricao')
-                .setLabel('Dê uma descrição do chamado')
+                .setCustomId("descricao")
+                .setLabel("Dê uma descrição do chamado")
                 .setStyle(TextInputStyle.Paragraph)
                 .setRequired(true);
             
             const emailInput = new TextInputBuilder()
-                .setCustomId('email')
-                .setLabel('Envie seu email para receber avisos')
+                .setCustomId("email")
+                .setLabel("Envie seu email para receber avisos")
                 .setStyle(TextInputStyle.Short)
                 .setRequired(true);
 
@@ -148,11 +151,10 @@ new Responder({
                 time: 30000 // Tempo limite de 30 segundos
             });
 
-            collector.on('collect', async (selectInteraction) => {
+            collector.on("collect", async (selectInteraction) => {
                 const selectedOption = selectInteraction.values[0];
                 const threadTitle = `🚨🎫 Usuário: ${interaction.user.globalName} | Tipo: ${selectedOption} | Número Ticket: ${numeroTicket}`;
 
-                const channelThreads = "1287785499322482711";
 
                 const thread = await RESTInstance.post(Routes.threads(channelThreads), {
                     body: {
@@ -182,12 +184,6 @@ new Responder({
                     }
                 });
                 console.log(chamado);
-
-                
-                const channel = await interaction.client.channels.fetch("1287785499322482711") as TextChannel;
-                if (channel) {
-                    await channel.send(`**Thread criada:** ${threadTitle}\n **Descricão:** ${descricao}\n **Data de criação:** ${formatDate(new Date())}`);
-                }
                 
                 try {
                     if (message) {
@@ -202,9 +198,9 @@ new Responder({
                 console.log("Envio do e-mail concluído!");
             });
 
-            collector.on('end', async (collected, reason) => {
+            collector.on("end", async (collected, reason) => {
                 console.log(`COLETOR FINALIZADO: ${collected}`);
-                if (reason === 'time') {
+                if (reason === "time") {
                     try {
                         if (message) {
                             await message.delete(); // Deletar a mensagem se o tempo se esgotar
@@ -247,7 +243,7 @@ new Responder({
                         if (infosEmail) {
                             return infosEmail;
                         } else {
-                            console.log('Dados não encontrados');
+                            console.log("Dados não encontrados");
                             return null;
                         }
                     } catch (error) {
@@ -284,7 +280,7 @@ new Responder({
                         console.log("E-mail enviado com sucesso!");
                     }
                 } catch (error) {
-                    console.error('Erro ao enviar o e-mail:', error);
+                    console.error("Erro ao enviar o e-mail:", error);
                 }
             }
 

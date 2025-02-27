@@ -26,7 +26,7 @@ new Command({
                 await interaction.reply({ content: `👤 Este chamado está sendo atendido por ***${userAttributeTicket}*** 💻`, ephemeral: false });
                 
                 const now = new Date();
-                const utcDate = toZonedTime(now, 'America/Sao_Paulo');
+                const utcDate = toZonedTime(now, "America/Sao_Paulo");
 
                 if (chamadoNumber) {
                     // Atualiza o campo `attributedAt` e o `attributedByUser` no banco de dados
@@ -96,7 +96,7 @@ new Command({
 
                       return emailData;
                     } else {
-                      console.log('Dados não encontrados');
+                      console.log("Dados não encontrados");
                     }
 
                     console.log(infosEmail);
@@ -158,7 +158,7 @@ new Command({
                         console.log("E-mail de atribuição enviado com sucesso!");
                       }
                     } catch (error) {
-                      console.error('Erro ao enviar o e-mail:', error);
+                      console.error("Erro ao enviar o e-mail:", error);
                     }
                   
                 }
