@@ -16,8 +16,22 @@ new Command({
     async run(interaction) {
 
         try {
+
+            //id do cargo
+            const allowedRoleId = "1328366427551432867";
+
+            // Verifica se o usuário tem o cargo permitido
+            const member = interaction.member;
+            if (!member.roles.cache.has(allowedRoleId)) {
+                await interaction.reply({
+                    content: "Você não tem permissão para usar este comando.",
+                    ephemeral: true,
+                });
+                return;
+            }
+
             const modal = new ModalBuilder()
-                .setCustomId("encerramentoModal") 
+                .setCustomId("encerramentoModal")
                 .setTitle("Mensagem de encerramento:");
 
             const msgfinalInput = new TextInputBuilder()
@@ -37,11 +51,11 @@ new Command({
             });
 
             // Aguarda a resposta ao modal, sem bloquear a execução do restante do código
-interaction.awaitModalSubmit({
-    time: 60000, // Tempo limite para o usuário responder (em ms)
-    filter: (i) => i.customId === "encerramentoModal" && i.user.id === interaction.user.id,
-}).then(async (submittedInteraction) => {
-    const msgfinal = submittedInteraction.fields.getTextInputValue("msgfinal");
+    interaction.awaitModalSubmit({
+        time: 60000, // Tempo limite para o usuário responder (em ms)
+        filter: (i) => i.customId === "encerramentoModal" && i.user.id === interaction.user.id,
+    }).then(async (submittedInteraction) => {
+        const msgfinal = submittedInteraction.fields.getTextInputValue("msgfinal");
 
     // Responde ao usuário imediatamente
     // submittedInteraction.reply({ content: "Sua mensagem de encerramento foi recebida. Estamos processando o fechamento do chamado.", ephemeral: true });
