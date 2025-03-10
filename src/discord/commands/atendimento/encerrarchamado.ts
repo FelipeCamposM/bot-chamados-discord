@@ -1,5 +1,5 @@
 import { Command } from "#base";
-import { ApplicationCommandType, ThreadChannel, ModalBuilder, TextInputBuilder, ActionRowBuilder, TextInputStyle } from "discord.js";
+import { ApplicationCommandType, ThreadChannel, ModalBuilder, TextInputBuilder, ActionRowBuilder, TextInputStyle, PermissionFlagsBits } from "discord.js";
 import { PrismaClient } from "@prisma/client";
 import { toZonedTime } from "date-fns-tz";
 import nodemailer from "nodemailer";
@@ -12,13 +12,14 @@ new Command({
     name: "encerrarchamado",
     description: "Envie isso para encerrar o chamado atual 🎫",
     type: ApplicationCommandType.ChatInput,
+    defaultMemberPermissions: PermissionFlagsBits.Administrator,
 
     async run(interaction) {
 
         try {
 
             //id do cargo
-            const allowedRoleId = "1328366427551432867";
+            const allowedRoleId = "1288150802283757599";
 
             // Verifica se o usuário tem o cargo permitido
             const member = interaction.member;
@@ -66,7 +67,8 @@ new Command({
 
     if (channel instanceof ThreadChannel) {
         const threadTitle = channel.name;
-        const chamadoNumber = threadTitle.match(/\d+/)?.[0];
+        const chamadoNumber = threadTitle.match(/Ticket:\s*(\d+)/)?.[1];
+        console.log("Numero do chamado: 🔢", chamadoNumber);
 
         if (chamadoNumber) {
             const now = new Date();

@@ -1,14 +1,15 @@
 import { Command, URLStore } from "#base";
 import { createEmbed } from "@magicyan/discord";
-import { ApplicationCommandType, ButtonBuilder, ButtonStyle, TextChannel, ActionRowBuilder, ComponentType } from "discord.js";
+import { ApplicationCommandType, ButtonBuilder, ButtonStyle, TextChannel, ActionRowBuilder, ComponentType, PermissionFlagsBits } from "discord.js";
 
-const canalEmbedId = "1344659254409429114";
-const servidorId = "1298349395091132458";
+const canalEmbedId = "1286347876208873553";
+const servidorId = "1285697402409582736";
 
 new Command({
     name: "novoticket",
     description: "Envie isso para abrir um novo Chamado 🎫",
     type: ApplicationCommandType.ChatInput,
+    defaultMemberPermissions: PermissionFlagsBits.Administrator,
     async run(interaction) {
         // Armazenar o channelId e o ticket no URLStore
         const urlStore = new URLStore();

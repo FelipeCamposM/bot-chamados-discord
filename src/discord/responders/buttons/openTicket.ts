@@ -1,5 +1,5 @@
 import { Responder, ResponderType } from "#base";
-import { ModalBuilder, TextInputBuilder, ActionRowBuilder, TextInputStyle, REST, Routes, StringSelectMenuBuilder, TextChannel } from "discord.js";
+import { ModalBuilder, TextInputBuilder, ActionRowBuilder, TextInputStyle, REST, Routes, StringSelectMenuBuilder, ThreadChannel, MessageCollector, Message } from "discord.js";
 import { ThreadsAPI } from "../../../api/thread.js";
 import { APIChannel } from "discord-api-types/v10";
 import { PrismaClient } from "@prisma/client";
@@ -8,8 +8,10 @@ import { formatDate } from "../../../functions/utility/formatDate.js";
 
 const RESTInstance = new REST({ version: "10" }).setToken(process.env.BOT_TOKEN);
 const threadsAPI = new ThreadsAPI(RESTInstance);
-const cargoId = "1328366427551432867";
-const channelThreads = "1344713682340286464";
+const cargoId = "1288150802283757599";
+const channelThreads = "1287785499322482711";
+const activeCollectors: Map<string, { collector: MessageCollector; messages: { author: string; content: string; timestamp: string }[] }> = new Map();
+
 
 function gerarNumeroTicket(): string {
     const timestamp = Date.now(); 
@@ -32,7 +34,6 @@ new Responder({
                     placeholder: "☰ Escolha uma das opções 📝",
                     options: [
                         { label: "Winthor", emoji: "🟠", value: "Winthor" },
-                        { label: "Ellévti", emoji: "🔵", value: "Ellevti" },
                         { label: "Whatsapp", emoji: "🟢", value: "Whatsapp" },
                         { label: "ION", emoji: "⚪", value: "Ion" },
                         { label: "Cadastro de Usuários", emoji: "👤", value: "Cadastro-Usuario" },
@@ -135,7 +136,7 @@ new Responder({
             const threadId = thread.id;
             await threadsAPI.addMember(threadId, modalInteraction.user.id);
 
-            const threadChannel = await modalInteraction.client.channels.fetch(threadId) as TextChannel;
+            const threadChannel = await modalInteraction.client.channels.fetch(threadId) as ThreadChannel;
             if (threadChannel) {
                 await threadChannel.send(
                     `<@&${cargoId}> \n🚨 Um novo chamado foi aberto por **${modalInteraction.user.globalName}**. 🎟️\n**Assunto:** ${assunto}.\n**Descrição:** ${descricao}\n**Número Ticket:** ${numeroTicket}`
@@ -157,7 +158,35 @@ new Responder({
             
             // Envia o e-mail de notificação
             await sendEmail();
-            console.log("Envio do e-mail concluído!");
+            
+            if (threadChannel) {
+                const collectedMessages: { author: string; content: string; timestamp: string }[] = [];;
+                const collector = threadChannel.createMessageCollector({});
+                activeCollectors.set(threadId, { collector: collector, messages: collectedMessages });
+        
+                collector.on("collect", (message: Message) => {
+                collectedMessages.push({
+                    author: message.author.username,
+                    content: message.cleanContent,
+                    timestamp: message.createdTimestamp.toString(),
+                });
+                console.log(`📩 Mensagem coletada: ${message.author.tag}: ${message.content}`);
+                console.log(`📊 Total de mensagens armazenadas: ${collectedMessages.length}`);
+                });
+        
+                collector.on("end", async () => {
+                console.log(`Coleta finalizada. Total de mensagens: ${collectedMessages.length}`);
+        
+                // Salvar as mensagens no banco de dados
+                await prisma.chamado.update({
+                    where: { ticket: numeroTicket },
+                    data: { messagesRegister: collectedMessages }
+                });
+                console.log("📂 Mensagens salvas no banco de dados com sucesso!");
+        
+                // activeCollectors.delete(threadId);
+                });
+            }
 
             // Finaliza a interação editando a resposta previamente deferida
             await modalInteraction.editReply({ content: "Seu chamado foi criado com sucesso!" });

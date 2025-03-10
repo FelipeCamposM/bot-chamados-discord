@@ -21,6 +21,7 @@ model chamado {
   email             String                                   // Email do usuario que abriu o chamado
   ticket            String   @unique                         // Número do Ticket
   typeproblem       String                                   // Tipo de Problema do chamado
+  messagesRegister  Json?                                    // Registro das mensagens enviadas na thread
   createdAt         DateTime @default(now())                 // Data de criação com valor padrão para a data atual
   attributedAt      DateTime?                                // Data de quando o chamado foi atribuido à alguem
   attributedByUser  String?                                  // Usuario que atribuiu a terava
