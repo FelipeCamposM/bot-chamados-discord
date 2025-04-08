@@ -17,9 +17,32 @@ new Command({
     async run(interaction) {
 
         try {
+            const channel = interaction.channel;
+            const threadTitle = channel?.name;
+            const chamadoNumber = threadTitle?.match(/Ticket:\s*(\d+)/)?.[1];
+            console.log("numero chamado no encerramento teste:", chamadoNumber);
 
+            const atribuido = await prisma.chamado.findUnique({
+                where: {
+                    ticket: chamadoNumber,
+                },
+                select: {
+                    attributedAt: true,
+                },
+            });
+    
+            if(!atribuido || atribuido.attributedAt === null) {
+                await interaction.reply({
+                    content: "Esse chamado ainda não foi atribuído! ❌",
+                    ephemeral: true,
+                });
+                return;
+            }
             //id do cargo
             const allowedRoleId = "1288150802283757599";
+
+            // //id do cargo de testes
+            // const allowedRoleId = "1328366427551432867";
 
             // Verifica se o usuário tem o cargo permitido
             const member = interaction.member;

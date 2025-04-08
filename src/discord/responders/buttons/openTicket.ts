@@ -124,7 +124,7 @@ new Responder({
             const selectedOption = selectionCache.get(modalInteraction.user.id);
             const numeroTicket = gerarNumeroTicket();
 
-            const threadTitle = `🚨🎫 Usuário: ${modalInteraction.user.globalName} | Tipo: ${selectedOption} | Número Ticket: ${numeroTicket}`;
+            const threadTitle = `🚨🎫 ${modalInteraction.user.globalName} | ${selectedOption} | Número Ticket: ${numeroTicket}`;
             
             const thread = await RESTInstance.post(Routes.threads(channelThreads), {
                 body: {
@@ -182,9 +182,7 @@ new Responder({
                     where: { ticket: numeroTicket },
                     data: { messagesRegister: collectedMessages }
                 });
-                console.log("📂 Mensagens salvas no banco de dados com sucesso!");
-        
-                // activeCollectors.delete(threadId);
+                console.log("📂 Mensagens salvas no banco de dados com sucesso!");        
                 });
             }
 
